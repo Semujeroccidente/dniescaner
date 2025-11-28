@@ -1264,7 +1264,21 @@ video {
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 30px rgba(102, 126, 234, 0.5);
     pointer-events: none;
     z-index: 10;
-    animation: pulse 2s ease-in-out infinite;
+    animation: pulse-centered 2s ease-in-out infinite;
+}
+
+@keyframes pulse-centered {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 30px rgba(102, 126, 234, 0.5);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.02);
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 50px rgba(102, 126, 234, 0.8);
+    }
 }
 
 
