@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cámara</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        #video {
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid #333;
+            margin: 20px 0;
+        }
+
+        #log {
+            background: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .info {
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎥 Test de Cámara</h1>
+    <p>Esta página prueba si tu dispositivo puede acceder a la cámara.</p>
+
+    <button onclick="testCamera()">🚀 Probar Cámara</button>
+    <button onclick="clearLog()">🗑️ Limpiar Log</button>
+
+    <video id="video" autoplay playsinline style="display:none;"></video>
+
+    <h3>Log de Diagnóstico:</h3>
+    <div id="log"></div>
+
+    <script>
+        const logDiv = document.getElementById('log');
+        const video = document.getElementById('video');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type;
+            logDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            logDiv.innerHTML = '';
+        }
+
+        async function testCamera() {
+            log('=== INICIANDO TEST DE CÁMARA ===', 'info');
+
+            // Test 1: Secure Context
+            log(`1. Contexto Seguro (HTTPS): ${window.isSecureContext ? '✅ SÍ' : '❌ NO'}`,
+                window.isSecureContext ? 'success' : 'error');
+
+            // Test 2: getUserMedia disponible
+            const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+            log(`2. getUserMedia disponible: ${hasGetUserMedia ? '✅ SÍ' : '❌ NO'}`,
+                hasGetUserMedia ? 'success' : 'error');
+
+            if (!hasGetUserMedia) {
+                log('❌ Tu navegador no soporta acceso a la cámara', 'error');
+                return;
+            }
+
+            // Test 3: Listar dispositivos
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cameras = devices.filter(d => d.kind === 'videoinput');
+                log(`3. Cámaras encontradas: ${cameras.length}`, cameras.length > 0 ? 'success' : 'error');
+                cameras.forEach((cam, i) => {
+                    log(`   - Cámara ${i + 1}: ${cam.label || 'Sin nombre'}`, 'info');
+                });
+            } catch (err) {
+                log(`3. Error listando dispositivos: ${err.message}`, 'error');
+            }
+
+            // Test 4: Intentar acceder a la cámara
+            const strategies = [
+                { name: 'Cámara trasera HD', constraints: { video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } } },
+                { name: 'Cámara trasera SD', constraints: { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } } },
+                { name: 'Cámara trasera simple', constraints: { video: { facingMode: 'environment' } } },
+                { name: 'Cualquier cámara', constraints: { video: true } }
+            ];
+
+            let stream = null;
+            let successStrategy = null;
+
+            for (let i = 0; i < strategies.length; i++) {
+                const strategy = strategies[i];
+                log(`4.${i + 1}. Probando: ${strategy.name}...`, 'info');
+
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(strategy.constraints);
+                    successStrategy = strategy.name;
+                    log(`   ✅ ÉXITO con: ${strategy.name}`, 'success');
+                    break;
+                } catch (err) {
+                    log(`   ❌ Falló: ${err.name} - ${err.message}`, 'error');
+                }
+            }
+
+            if (stream) {
+                log('5. Stream obtenido, mostrando video...', 'success');
+                video.style.display = 'block';
+                video.srcObject = stream;
+
+                try {
+                    await video.play();
+                    log('6. ✅ Video reproduciéndose correctamente', 'success');
+
+                    video.onloadedmetadata = () => {
+                        const width = video.videoWidth;
+                        const height = video.videoHeight;
+                        log(`7. Resolución del video: ${width}x${height}`, 'success');
+                    };
+
+                    log('\n=== ✅ TEST COMPLETADO EXITOSAMENTE ===', 'success');
+                    log(`Estrategia exitosa: ${successStrategy}`, 'success');
+                    log('La cámara funciona correctamente en este dispositivo.', 'success');
+
+                } catch (playErr) {
+                    log(`6. ❌ Error reproduciendo video: ${playErr.message}`, 'error');
+                }
+            } else {
+                log('\n=== ❌ TEST FALLIDO ===', 'error');
+                log('No se pudo acceder a ninguna cámara con ninguna estrategia.', 'error');
+                log('Posibles causas:', 'error');
+                log('- Permisos de cámara denegados', 'error');
+                log('- Cámara en uso por otra aplicación', 'error');
+                log('- Navegador no compatible', 'error');
+                log('- Dispositivo sin cámara', 'error');
+            }
+        }
+
+        // Auto-ejecutar al cargar
+        window.addEventListener('load', () => {
+            log('Página cargada. Presiona "Probar Cámara" para iniciar el test.', 'info');
+            log(`User Agent: ${navigator.userAgent}`, 'info');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,21 @@
+{
+    "name": "Escáner DNI SEMUJER",
+    "short_name": "DNI Scanner",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#2c3e50",
+    "theme_color": "#2c3e50",
+    "description": "Aplicación para captura y registro de DNI Hondureño",
+    "icons": [
+        {
+            "src": "assets/icon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/icon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
