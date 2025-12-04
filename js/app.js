@@ -316,7 +316,8 @@ const app = {
             }
 
             // Usar la validación interna del scanner
-            if (mrzResult.validation.validation_status !== "OK") {
+            const validationStatus = mrzResult.validation?.status || 'UNKNOWN';
+            if (validationStatus !== "OK") {
                 console.warn("Validación MRZ parcial o fallida:", mrzResult.validation);
                 statusText.innerText = "⚠️ Lectura parcial - verifica datos";
                 if (statusIcon) statusIcon.className = 'fas fa-check-circle';
@@ -797,7 +798,19 @@ const app = {
         try {
             const records = await dbManager.getAllRecords();
             const record = records.find(r => r.id === id);
-            if (!record) return;
+            if (!record) {
+                console.error('❌ Record not found:', id);
+                return;
+            }
+
+            console.log('🖨️ Printing record:', {
+                id: record.id,
+                dni: record.dni,
+                hasFrontImage: !!record.imageFront,
+                hasBackImage: !!record.imageBack,
+                frontSize: record.imageFront ? `${(record.imageFront.length / 1024).toFixed(0)} KB` : 'N/A',
+                backSize: record.imageBack ? `${(record.imageBack.length / 1024).toFixed(0)} KB` : 'N/A'
+            });
 
             const w = window.open("", "_blank");
             w.document.open();

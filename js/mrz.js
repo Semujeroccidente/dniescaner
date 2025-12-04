@@ -103,12 +103,15 @@ function normalizeMRZLine(line) {
     // Reemplaza símbolos comúnmente confundidos con '<' por '<'
     s = s.replace(/[\|\u01C0\u2016\u201A\u201C]/g, '<'); // barras y símbolos parecidos a <
 
-    // Normaliza caracteres confusos (aplicar correcciones conservadoras)
+    // DESHABILITADO: Las correcciones OCR son demasiado agresivas y corrompen nombres
+    // Convertir TODAS las 'O' en '0' destruye nombres como "MORALES" -> "M0RALES"
+    // Convertir TODAS las 'I' en '1' destruye nombres como "ITALIA" -> "1TAL1A"
+    // Esto causa que el parsing de nombres falle completamente.
+    /*
     for (const [a, b] of OCR_CORRECTIONS) {
-        // Aquí reemplazamos solo cuando el carácter aparece en contextos numéricos o donde tiene sentido.
-        // Para simplicidad lo aplicamos globalmente — si lo prefieres puedes aplicar sólo sobre posiciones determinadas
         s = s.replace(new RegExp(a, 'g'), b);
     }
+    */
 
     // Keep only allowed chars A-Z 0-9 and '<'
     s = s.replace(/[^A-Z0-9<]/g, '');
@@ -252,21 +255,28 @@ function parseTD1(lines) {
     const b = lines[1].padEnd(30, '<').substring(0, 30);
     const c = lines[2].padEnd(30, '<').substring(0, 30);
 
+    // Formato DNI Hondureño TD1:
+    // Línea 1: I<HND + APELLIDOS<<NOMBRES<<<<<<<<<
+    // Línea 2: 0801234567890HND900515F2512151<<<<<
+    //          [0-8] Doc#  [9]✓ [10-12]País [13-18]Nac [19]✓ [20]Sex [21-26]Exp [27]✓
+    // Línea 3: <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
     const result = {
         format: 'TD1',
         raw: [a, b, c],
-        docType: a.substring(0, 2),
-        issuingCountry: a.substring(2, 5),
-        namesRaw: a.substring(5, 30),
-        documentNumber: b.substring(0, 9),
-        documentNumberCheck: b.substring(9, 10),
-        optionalData1: b.substring(10, 15),
-        birthDate: b.substring(13, 19), // posición variable según formato; TD1 a veces usa otras posiciones
-        birthDateCheck: b.substring(19, 20),
-        sex: b.substring(20, 21),
-        expiryDate: b.substring(21, 27),
-        expiryDateCheck: b.substring(27, 28),
-        optionalData2: b.substring(28, 30) + c.substring(0, 2)
+        docType: a.substring(0, 2),              // "I<" para DNI
+        issuingCountry: a.substring(2, 5),       // "HND"
+        namesRaw: a.substring(5, 30),            // APELLIDOS<<NOMBRES
+        documentNumber: b.substring(0, 9),       // 13 dígitos del DNI sin guiones
+        documentNumberCheck: b.substring(9, 10), // Dígito verificador
+        nationality: b.substring(10, 13),        // "HND"
+        birthDate: b.substring(13, 19),          // YYMMDD (posición correcta para DNI HND)
+        birthDateCheck: b.substring(19, 20),     // Dígito verificador de fecha
+        sex: b.substring(20, 21),                // M/F
+        expiryDate: b.substring(21, 27),         // YYMMDD
+        expiryDateCheck: b.substring(27, 28),    // Dígito verificador
+        optionalData1: b.substring(28, 30),      // Datos opcionales
+        optionalData2: c.substring(0, 11)        // Línea 3 generalmente vacía (<<<)
     };
 
     // nombres
