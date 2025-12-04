@@ -282,6 +282,20 @@ const app = {
             const mrzResult = mrzPromiseResult.status === 'fulfilled' ? mrzPromiseResult.value : null;
             const frontResult = frontPromiseResult && frontPromiseResult.status === 'fulfilled' ? frontPromiseResult.value : null;
 
+            // Normalizar datos MRZ de camelCase a snake_case
+            if (mrzResult && mrzResult.data) {
+                const raw = mrzResult.data;
+                mrzResult.data = {
+                    document_number: raw.documentNumber || raw.passportNumber || '',
+                    full_name: raw.fullName || '',
+                    birth_date: raw.birthDateISO || raw.birthDate || '',
+                    sex: raw.sex || '',
+                    format: raw.format,
+                    // Mantener datos originales por si se necesitan
+                    _raw: raw
+                };
+            }
+
             if (!mrzResult || !mrzResult.data || !mrzResult.data.document_number) {
                 throw new Error("No se detectó MRZ válido después de múltiples intentos.");
             }
@@ -626,83 +640,83 @@ const app = {
                 if (!r) throw new Error('Registro inválido: null/undefined');
                 // Defensive: ensure id exists
                 if (typeof r.id === 'undefined') r.id = null; // allow rendering but warn
-            const tr = document.createElement('tr');
-            const dateStr = new Date(r.date).toLocaleDateString();
+                const tr = document.createElement('tr');
+                const dateStr = new Date(r.date).toLocaleDateString();
 
-            // Create cells safely using textContent
-            const cells = [
-                { text: dateStr },
-                { text: r.dni || '-' },
-                { text: r.fullname || '-' },
-                { text: r.age || '-' },
-                { text: r.phone || '-' },
-                { text: r.municipality && r.department ? `${r.municipality}, ${r.department}` : '-' }
-            ];
+                // Create cells safely using textContent
+                const cells = [
+                    { text: dateStr },
+                    { text: r.dni || '-' },
+                    { text: r.fullname || '-' },
+                    { text: r.age || '-' },
+                    { text: r.phone || '-' },
+                    { text: r.municipality && r.department ? `${r.municipality}, ${r.department}` : '-' }
+                ];
 
-            cells.forEach(cell => {
-                const td = document.createElement('td');
-                td.textContent = cell.text;
-                tr.appendChild(td);
-            });
+                cells.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.textContent = cell.text;
+                    tr.appendChild(td);
+                });
 
-            // Action buttons (safe event listeners)
-            const tdActions = document.createElement('td');
-            const divActions = document.createElement('div');
-            divActions.className = 'action-buttons';
-            divActions.style.display = 'flex';
-            divActions.style.gap = '5px';
+                // Action buttons (safe event listeners)
+                const tdActions = document.createElement('td');
+                const divActions = document.createElement('div');
+                divActions.className = 'action-buttons';
+                divActions.style.display = 'flex';
+                divActions.style.gap = '5px';
 
-            // Image button
-            if (r.imageFront || r.imageBack) {
-                const imgBtn = document.createElement('button');
-                imgBtn.className = 'btn btn-small btn-primary';
-                imgBtn.title = 'Ver Fotos';
-                imgBtn.innerHTML = '<i class="fa-regular fa-image"></i>';
-                imgBtn.dataset.action = 'view';
-                imgBtn.dataset.recordId = r.id;
-                divActions.appendChild(imgBtn);
-            }
+                // Image button
+                if (r.imageFront || r.imageBack) {
+                    const imgBtn = document.createElement('button');
+                    imgBtn.className = 'btn btn-small btn-primary';
+                    imgBtn.title = 'Ver Fotos';
+                    imgBtn.innerHTML = '<i class="fa-regular fa-image"></i>';
+                    imgBtn.dataset.action = 'view';
+                    imgBtn.dataset.recordId = r.id;
+                    divActions.appendChild(imgBtn);
+                }
 
-            // Edit button
-            const editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-small btn-secondary';
-            editBtn.title = 'Editar';
-            editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
-            editBtn.dataset.action = 'edit';
-            editBtn.dataset.recordId = r.id;
-            divActions.appendChild(editBtn);
+                // Edit button
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn btn-small btn-secondary';
+                editBtn.title = 'Editar';
+                editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                editBtn.dataset.action = 'edit';
+                editBtn.dataset.recordId = r.id;
+                divActions.appendChild(editBtn);
 
-            // Print button
-            const printBtn = document.createElement('button');
-            printBtn.className = 'btn btn-small btn-secondary';
-            printBtn.title = 'Imprimir Ficha';
-            printBtn.innerHTML = '<i class="fa-solid fa-print"></i>';
-            printBtn.dataset.action = 'print';
-            printBtn.dataset.recordId = r.id;
-            divActions.appendChild(printBtn);
+                // Print button
+                const printBtn = document.createElement('button');
+                printBtn.className = 'btn btn-small btn-secondary';
+                printBtn.title = 'Imprimir Ficha';
+                printBtn.innerHTML = '<i class="fa-solid fa-print"></i>';
+                printBtn.dataset.action = 'print';
+                printBtn.dataset.recordId = r.id;
+                divActions.appendChild(printBtn);
 
-            // QR button
-            const qrBtn = document.createElement('button');
-            qrBtn.className = 'btn btn-small btn-secondary';
-            qrBtn.title = 'Generar QR';
-            qrBtn.innerHTML = '<i class="fa-solid fa-qrcode"></i>';
-            qrBtn.dataset.action = 'qr';
-            qrBtn.dataset.recordId = r.id;
-            divActions.appendChild(qrBtn);
+                // QR button
+                const qrBtn = document.createElement('button');
+                qrBtn.className = 'btn btn-small btn-secondary';
+                qrBtn.title = 'Generar QR';
+                qrBtn.innerHTML = '<i class="fa-solid fa-qrcode"></i>';
+                qrBtn.dataset.action = 'qr';
+                qrBtn.dataset.recordId = r.id;
+                divActions.appendChild(qrBtn);
 
-            // Delete button
-            const delBtn = document.createElement('button');
-            delBtn.className = 'btn btn-small btn-danger';
-            delBtn.title = 'Eliminar';
-            delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-            // Data attributes for easier tracing/debugging
-            delBtn.dataset.action = 'delete';
-            delBtn.dataset.recordId = r.id;
-            divActions.appendChild(delBtn);
+                // Delete button
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn btn-small btn-danger';
+                delBtn.title = 'Eliminar';
+                delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                // Data attributes for easier tracing/debugging
+                delBtn.dataset.action = 'delete';
+                delBtn.dataset.recordId = r.id;
+                divActions.appendChild(delBtn);
 
-            tdActions.appendChild(divActions);
-            tr.appendChild(tdActions);
-            tbody.appendChild(tr);
+                tdActions.appendChild(divActions);
+                tr.appendChild(tdActions);
+                tbody.appendChild(tr);
             } catch (rowErr) {
                 console.error('Error rendering record row:', rowErr, 'Record:', r);
                 // Add a safe fallback row indicating error for this record
@@ -711,7 +725,7 @@ const app = {
                 tbody.appendChild(trErr);
                 return; // continue to next record
             }
-            
+
         });
     },
 
