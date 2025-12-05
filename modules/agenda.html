@@ -142,7 +142,7 @@
             <div class="appointments-section">
                 <h3 class="section-title">
                     <i class="fa-solid fa-list-check"></i>
-                    Citas Programadas
+                    Proximos Eventos
                 </h3>
                 <div id="appointments-list" class="appointments-list">
                     <!-- Appointments will be rendered here by JS -->
@@ -155,10 +155,18 @@
         <div id="form-section" class="form-section">
             <h3 class="section-title" id="form-title">
                 <i class="fa-solid fa-calendar-plus"></i>
-                Nueva Cita
+                Nuevo Evento
             </h3>
 
             <form id="appointment-form" class="appointment-form">
+                <div class="form-group">
+                    <label for="appointment-title">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        Nombre del Evento
+                    </label>
+                    <input type="text" id="appointment-title" placeholder="Ej: Reunión con Gobiernos Locales" required>
+                </div>
+
                 <div class="form-group">
                     <label for="appointment-date">
                         <i class="fa-regular fa-calendar"></i>
@@ -168,48 +176,47 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="appointment-time">
+                    <label for="time-hour">
                         <i class="fa-regular fa-clock"></i>
-                        Hora
+                        Hora del Evento
                     </label>
-                    <select id="appointment-time" required>
-                        <option value="">Seleccione una hora</option>
-                        <option value="07:00">07:00 AM</option>
-                        <option value="07:30">07:30 AM</option>
-                        <option value="08:00">08:00 AM</option>
-                        <option value="08:30">08:30 AM</option>
-                        <option value="09:00">09:00 AM</option>
-                        <option value="09:30">09:30 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="10:30">10:30 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="11:30">11:30 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="12:30">12:30 PM</option>
-                        <option value="13:00">01:00 PM</option>
-                        <option value="13:30">01:30 PM</option>
-                        <option value="14:00">02:00 PM</option>
-                        <option value="14:30">02:30 PM</option>
-                        <option value="15:00">03:00 PM</option>
-                        <option value="15:30">03:30 PM</option>
-                        <option value="16:00">04:00 PM</option>
-                        <option value="16:30">04:30 PM</option>
-                        <option value="17:00">05:00 PM</option>
-                        <option value="17:30">05:30 PM</option>
-                        <option value="18:00">06:00 PM</option>
-                        <option value="18:30">06:30 PM</option>
-                        <option value="19:00">07:00 PM</option>
-                        <option value="19:30">07:30 PM</option>
-                        <option value="20:00">08:00 PM</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="appointment-title">
-                        <i class="fa-solid fa-heading"></i>
-                        Título
-                    </label>
-                    <input type="text" id="appointment-title" placeholder="Ej: Reunión con Gobiernos Locales" required>
+                    <div class="time-selector-container">
+                        <select id="time-hour" class="time-select" required>
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                        <span class="time-separator">:</span>
+                        <select id="time-minute" class="time-select" required>
+                            <option value="00">00</option>
+                            <option value="05">05</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                            <option value="35">35</option>
+                            <option value="40">40</option>
+                            <option value="45">45</option>
+                            <option value="50">50</option>
+                            <option value="55">55</option>
+                        </select>
+                        <select id="time-period" class="time-select" required>
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                    <!-- Hidden input to store 24h format for DB/Logic -->
+                    <input type="hidden" id="appointment-time" required>
                 </div>
 
                 <div class="form-group">

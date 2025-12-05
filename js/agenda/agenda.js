@@ -170,8 +170,11 @@ class AgendaApp {
             calendarGrid.appendChild(day);
         }
 
-        // Next month days
-        const remainingDays = 42 - (firstDayOfWeek + daysInMonth);
+        // Next month days - Fill only until the end of the last week needed
+        const totalDaysShown = firstDayOfWeek + daysInMonth;
+        const totalRows = Math.ceil(totalDaysShown / 7);
+        const remainingDays = (totalRows * 7) - totalDaysShown;
+
         for (let i = 1; i <= remainingDays; i++) {
             const day = this.createDayElement(i, month + 1, year, true);
             calendarGrid.appendChild(day);
@@ -206,16 +209,48 @@ class AgendaApp {
         const dayAppointments = this.appointments.filter(a => a.date === dateStr);
         if (dayAppointments.length > 0) {
             dayElement.classList.add('has-appointment');
+            dayElement.setAttribute('data-event-count', dayAppointments.length);
         }
 
         dayElement.innerHTML = `
             <span class="day-number">${day}</span>
-            ${dayAppointments.length > 0 ? `<span class="day-appointments">${dayAppointments.length}</span>` : ''}
+            ${dayAppointments.length > 0 ? `<span class="day-appointments">${dayAppointments.length} cita${dayAppointments.length > 1 ? 's' : ''}</span>` : ''}
         `;
 
-        if (!isOtherMonth) {
-            dayElement.addEventListener('click', () => this.selectDate(dateStr));
-        }
+        // Add click event listener for ALL days (including other months)
+        dayElement.addEventListener('click', () => {
+            if (isOtherMonth) {
+                // If clicking prev/next month day, navigate there
+                if (day > 15) { // It's likely previous month (dates 20-31)
+                    this.previousMonth();
+                } else { // It's likely next month (dates 1-14)
+                    this.nextMonth();
+                }
+                // Also select the date
+                setTimeout(() => this.selectDate(dateStr), 0);
+            } else {
+                this.selectDate(dateStr);
+            }
+        });
+
+        // Add double click listener to scroll to form and focus title
+        dayElement.addEventListener('dblclick', () => {
+            // Ensure date is selected first
+            if (isOtherMonth) {
+                if (day > 15) this.previousMonth();
+                else this.nextMonth();
+                setTimeout(() => this.selectDate(dateStr), 0);
+            } else {
+                this.selectDate(dateStr);
+            }
+
+            // Scroll to form and focus title
+            const formSection = document.getElementById('form-section');
+            const titleInput = document.getElementById('appointment-title');
+
+            formSection.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => titleInput.focus(), 500); // Wait for scroll
+        });
 
         return dayElement;
     }
@@ -256,25 +291,51 @@ class AgendaApp {
             return;
         }
 
-        container.innerHTML = filteredAppointments.map(appointment => `
-            <div class="appointment-item">
+        container.innerHTML = ''; // Clear container
+        filteredAppointments.forEach(appointment => {
+            const item = document.createElement('div');
+            item.className = 'appointment-item';
+            item.innerHTML = `
+                <div class="appointment-title">${appointment.title}</div>
                 <div class="appointment-time">
                     <i class="fa-regular fa-clock"></i>
-                    ${appointment.time} - ${this.formatDate(appointment.date)}
+                    ${this.formatTime(appointment.time)} - ${this.formatDate(appointment.date)}
                 </div>
-                <div class="appointment-title">${appointment.title}</div>
                 ${appointment.staff && appointment.staff.length > 0 ? `<div class="appointment-description"><i class="fa-solid fa-user-tie"></i> ${this.formatStaffList(appointment.staff)}</div>` : ''}
                 ${appointment.description ? `<div class="appointment-description">${appointment.description}</div>` : ''}
                 <div class="appointment-actions">
-                    <button class="btn-edit" onclick="agendaApp.editAppointment(${appointment.id})">
+                    <button class="btn-edit" data-id="${appointment.id}">
                         <i class="fa-solid fa-pen"></i> Editar
                     </button>
-                    <button class="btn-delete" onclick="agendaApp.confirmDelete(${appointment.id})">
+                    <button class="btn-delete" data-id="${appointment.id}">
                         <i class="fa-solid fa-trash"></i> Eliminar
                     </button>
                 </div>
-            </div>
-        `).join('');
+            `;
+
+            // Add event listeners with proper scope
+            const editBtn = item.querySelector('.btn-edit');
+            const deleteBtn = item.querySelector('.btn-delete');
+
+            editBtn.addEventListener('click', () => {
+                this.editAppointment(appointment.id);
+            });
+
+            deleteBtn.addEventListener('click', () => {
+                this.confirmDelete(appointment.id);
+            });
+
+            container.appendChild(item);
+        });
+    }
+
+    formatTime(timeStr) {
+        if (!timeStr) return '';
+        const [h, m] = timeStr.split(':');
+        const hour = parseInt(h);
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 || 12;
+        return `${String(hour12).padStart(2, '0')}:${m} ${period}`;
     }
 
     formatDate(dateStr) {
@@ -294,6 +355,30 @@ class AgendaApp {
 
         document.getElementById('appointment-form').addEventListener('submit', (e) => this.handleFormSubmit(e));
         document.getElementById('btn-cancel-form').addEventListener('click', () => this.clearForm());
+
+        // Time Selectors Logic
+        const hourSelect = document.getElementById('time-hour');
+        const minuteSelect = document.getElementById('time-minute');
+        const periodSelect = document.getElementById('time-period');
+        const hiddenInput = document.getElementById('appointment-time');
+
+        const updateHiddenTime = () => {
+            let hour = parseInt(hourSelect.value);
+            const minute = minuteSelect.value;
+            const period = periodSelect.value;
+
+            if (period === 'PM' && hour !== 12) hour += 12;
+            if (period === 'AM' && hour === 12) hour = 0;
+
+            hiddenInput.value = `${String(hour).padStart(2, '0')}:${minute}`;
+        };
+
+        hourSelect.addEventListener('change', updateHiddenTime);
+        minuteSelect.addEventListener('change', updateHiddenTime);
+        periodSelect.addEventListener('change', updateHiddenTime);
+
+        // Initialize hidden input
+        updateHiddenTime();
     }
 
     async handleFormSubmit(e) {
@@ -338,8 +423,19 @@ class AgendaApp {
 
         this.editingId = id;
         document.getElementById('appointment-date').value = appointment.date;
-        document.getElementById('appointment-time').value = appointment.time;
         document.getElementById('appointment-title').value = appointment.title;
+
+        // Parse time for selectors
+        const [h, m] = appointment.time.split(':');
+        let hour = parseInt(h);
+        const period = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12 || 12;
+
+        document.getElementById('time-hour').value = String(hour).padStart(2, '0');
+        document.getElementById('time-minute').value = m;
+        document.getElementById('time-period').value = period;
+        document.getElementById('appointment-time').value = appointment.time; // Update hidden input too
+
         this.setSelectedStaff(appointment.staff || []);
         document.getElementById('appointment-description').value = appointment.description || '';
 
@@ -369,6 +465,15 @@ class AgendaApp {
         document.getElementById('appointment-form').reset();
         document.getElementById('form-title').textContent = 'Nueva Cita';
         document.getElementById('btn-submit-form').innerHTML = '<i class="fa-solid fa-plus"></i> Crear Cita';
+
+        // Reset Time Selectors Sync
+        // Dispatch event to update hidden input based on default select values
+        setTimeout(() => {
+            document.getElementById('time-hour').dispatchEvent(new Event('change'));
+        }, 0);
+
+        // Clear staff selection
+        this.setSelectedStaff([]);
 
         if (this.selectedDate) {
             document.getElementById('appointment-date').value = this.selectedDate;
@@ -421,8 +526,25 @@ class AgendaApp {
     }
 
     showNotification(message, type) {
-        // Simple notification - could be enhanced with a toast library
-        alert(message);
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+
+        // Add to body
+        document.body.appendChild(toast);
+
+        // Trigger animation
+        setTimeout(() => toast.classList.add('show'), 10);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 }
 
