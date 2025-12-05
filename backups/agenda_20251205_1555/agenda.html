@@ -144,23 +144,6 @@
                     <i class="fa-solid fa-list-check"></i>
                     Proximos Eventos
                 </h3>
-                <div class="appointments-filter">
-                    <div class="search-box">
-                        <i class="fa-solid fa-search"></i>
-                        <input type="text" id="search-appointments" placeholder="Buscar cita...">
-                    </div>
-                    <div class="filter-box">
-                        <i class="fa-solid fa-filter"></i>
-                        <select id="filter-staff">
-                            <option value="">Todos los miembros</option>
-                            <option value="JEFE DE REGIONAL">Jefe de Regional</option>
-                            <option value="OFICIAL JURIDICO">Oficial Jurídico</option>
-                            <option value="ASISTENTE JURIDICO">Asistente Jurídico</option>
-                            <option value="TECNICO">Técnico</option>
-                            <option value="CONDUCTOR">Conductor</option>
-                        </select>
-                    </div>
-                </div>
                 <div id="appointments-list" class="appointments-list">
                     <!-- Appointments will be rendered here by JS -->
                 </div>
@@ -290,23 +273,6 @@
             </form>
         </div>
 
-    </div>
-
-    <!-- Custom Confirmation Modal -->
-    <div id="confirmation-modal" class="modal-overlay">
-        <div class="modal-container">
-            <div class="modal-header">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                <h3>Confirmar Eliminación</h3>
-            </div>
-            <div class="modal-body">
-                <p>¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.</p>
-            </div>
-            <div class="modal-actions">
-                <button id="btn-modal-cancel" class="btn-cancel">Cancelar</button>
-                <button id="btn-modal-confirm" class="btn-delete">Eliminar</button>
-            </div>
-        </div>
     </div>
 
     <script src="../js/agenda/agenda.js"></script>

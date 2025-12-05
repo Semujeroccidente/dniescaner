@@ -264,31 +264,13 @@ class AgendaApp {
         document.getElementById('appointment-date').value = dateStr;
     }
 
-    // Render Appointments List - Updated with Search and Filter
+    // Render Appointments List
     renderAppointments() {
         const container = document.getElementById('appointments-list');
-        const searchText = document.getElementById('search-appointments')?.value.toLowerCase() || '';
-        const filterStaff = document.getElementById('filter-staff')?.value || '';
 
         let filteredAppointments = this.appointments;
-
-        // Filter by Date (if selected)
         if (this.selectedDate) {
             filteredAppointments = this.appointments.filter(a => a.date === this.selectedDate);
-        }
-
-        // Filter by Search Text (Title)
-        if (searchText) {
-            filteredAppointments = filteredAppointments.filter(a =>
-                a.title.toLowerCase().includes(searchText)
-            );
-        }
-
-        // Filter by Staff
-        if (filterStaff) {
-            filteredAppointments = filteredAppointments.filter(a =>
-                a.staff && a.staff.includes(filterStaff)
-            );
         }
 
         // Sort by date and time
@@ -303,9 +285,7 @@ class AgendaApp {
             container.innerHTML = `
                 <div class="empty-appointments">
                     <i class="fa-regular fa-calendar-xmark"></i>
-                    <p>${searchText || filterStaff ? 'No se encontraron citas con estos filtros' :
-                    this.selectedDate ? 'No hay citas para esta fecha' : 'No hay citas programadas'
-                }</p>
+                    <p>${this.selectedDate ? 'No hay citas para esta fecha' : 'No hay citas programadas'}</p>
                 </div>
             `;
             return;
@@ -367,7 +347,7 @@ class AgendaApp {
         return `${day} ${monthNames[month]}`;
     }
 
-    // Form handling & Event Listeners
+    // Form handling
     attachEventListeners() {
         document.getElementById('btn-prev-month').addEventListener('click', () => this.previousMonth());
         document.getElementById('btn-next-month').addEventListener('click', () => this.nextMonth());
@@ -375,50 +355,6 @@ class AgendaApp {
 
         document.getElementById('appointment-form').addEventListener('submit', (e) => this.handleFormSubmit(e));
         document.getElementById('btn-cancel-form').addEventListener('click', () => this.clearForm());
-
-        // Search and Filter Listeners
-        const searchInput = document.getElementById('search-appointments');
-        const filterSelect = document.getElementById('filter-staff');
-
-        if (searchInput) {
-            searchInput.addEventListener('input', () => this.renderAppointments());
-        }
-        if (filterSelect) {
-            filterSelect.addEventListener('change', () => this.renderAppointments());
-        }
-
-        // Custom Modal Listeners
-        const modal = document.getElementById('confirmation-modal');
-        const btnCancelModal = document.getElementById('btn-modal-cancel');
-        const btnConfirmModal = document.getElementById('btn-modal-confirm');
-
-        if (btnCancelModal) {
-            btnCancelModal.addEventListener('click', () => {
-                this.hideModal();
-                this.pendingDeleteId = null;
-            });
-        }
-
-        // We'll attach the confirm listener dynamically or here if we use a class property
-        if (btnConfirmModal) {
-            btnConfirmModal.addEventListener('click', async () => {
-                if (this.pendingDeleteId) {
-                    await this.executeDelete(this.pendingDeleteId);
-                    this.hideModal();
-                    this.pendingDeleteId = null;
-                }
-            });
-        }
-
-        // Close modal on outside click
-        if (modal) {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    this.hideModal();
-                    this.pendingDeleteId = null;
-                }
-            });
-        }
 
         // Time Selectors Logic
         const hourSelect = document.getElementById('time-hour');
@@ -437,13 +373,12 @@ class AgendaApp {
             hiddenInput.value = `${String(hour).padStart(2, '0')}:${minute}`;
         };
 
-        if (hourSelect && minuteSelect && periodSelect) {
-            hourSelect.addEventListener('change', updateHiddenTime);
-            minuteSelect.addEventListener('change', updateHiddenTime);
-            periodSelect.addEventListener('change', updateHiddenTime);
-            // Initialize hidden input
-            updateHiddenTime();
-        }
+        hourSelect.addEventListener('change', updateHiddenTime);
+        minuteSelect.addEventListener('change', updateHiddenTime);
+        periodSelect.addEventListener('change', updateHiddenTime);
+
+        // Initialize hidden input
+        updateHiddenTime();
     }
 
     async handleFormSubmit(e) {
@@ -511,30 +446,17 @@ class AgendaApp {
         document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
     }
 
-    confirmDelete(id) {
-        this.pendingDeleteId = id;
-        this.showModal();
-    }
-
-    showModal() {
-        const modal = document.getElementById('confirmation-modal');
-        if (modal) modal.classList.add('show');
-    }
-
-    hideModal() {
-        const modal = document.getElementById('confirmation-modal');
-        if (modal) modal.classList.remove('show');
-    }
-
-    async executeDelete(id) {
-        try {
-            await this.deleteAppointment(id);
-            this.renderCalendar();
-            this.renderAppointments();
-            this.showNotification('Cita eliminada exitosamente', 'success');
-        } catch (error) {
-            console.error('Error deleting appointment:', error);
-            this.showNotification('Error al eliminar la cita', 'error');
+    async confirmDelete(id) {
+        if (confirm('¿Está seguro de eliminar esta cita?')) {
+            try {
+                await this.deleteAppointment(id);
+                this.renderCalendar();
+                this.renderAppointments();
+                this.showNotification('Cita eliminada exitosamente', 'success');
+            } catch (error) {
+                console.error('Error deleting appointment:', error);
+                this.showNotification('Error al eliminar la cita', 'error');
+            }
         }
     }
 
@@ -547,8 +469,7 @@ class AgendaApp {
         // Reset Time Selectors Sync
         // Dispatch event to update hidden input based on default select values
         setTimeout(() => {
-            const hourSelect = document.getElementById('time-hour');
-            if (hourSelect) hourSelect.dispatchEvent(new Event('change'));
+            document.getElementById('time-hour').dispatchEvent(new Event('change'));
         }, 0);
 
         // Clear staff selection
