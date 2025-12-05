@@ -142,45 +142,44 @@ function mrzChecksum(s) {
     return sum % 10;
 }
 
-/* Detecta si un grupo de líneas corresponde a MRZ TD1 (3x30) o TD3 (2x44)
-   y devuelve un objeto con tipo y líneas normalizadas.
+/* Detecta si un grupo de líneas corresponde a MRZ TD1 (3x30)
+   OPTIMIZADO: Solo detecta TD1 para DNI Hondureño, NO soporta TD3 (pasaportes)
 */
 function detectMRZGroup(candidateLines) {
-    // candidateLines already cleaned (uppercase, trimmed)
-    // varía entre 2 y 3 líneas (a veces OCR produce 4, lo manejamos en agrupamiento)
     const lines = candidateLines.map(l => normalizeMRZLine(l));
 
-    // buscar TD1 (3 líneas ~30)
+    // Buscar TD1 (3 líneas de ~30 caracteres)
+    // Más permisivo: acepta líneas de 25-35 caracteres para tolerar errores OCR
     if (lines.length >= 3) {
-        // comprobar todas combinaciones consecutivas de 3 líneas en el array
         for (let i = 0; i <= lines.length - 3; i++) {
             const a = lines[i], b = lines[i + 1], c = lines[i + 2];
-            if (a.length >= 27 && a.length <= 34 && b.length >= 27 && b.length <= 34 && c.length >= 27 && c.length <= 34) {
-                // TD1 suele tener 30 chars por línea, aceptamos un rango
+            // Verificar que las 3 líneas tengan longitud similar (~30)
+            if (a.length >= 25 && a.length <= 35 &&
+                b.length >= 25 && b.length <= 35 &&
+                c.length >= 25 && c.length <= 35) {
+
+                // Verificación adicional: línea 1 debe empezar con I< y tener <<
+                // línea 2 debe tener dígitos (número de documento)
+                if (a.startsWith('I<') && a.includes('<<') && /[0-9]{6,}/.test(b)) {
+                    return { type: 'TD1', lines: [a, b, c], startIndex: i };
+                }
+                // Fallback: si tienen el largo correcto, aceptar de todas formas
                 return { type: 'TD1', lines: [a, b, c], startIndex: i };
             }
         }
     }
 
-    // buscar TD3 (2 líneas ~44)
+    // Si hay 2 líneas que parecen MRZ, intentar agregar una tercera vacía
     if (lines.length >= 2) {
         for (let i = 0; i <= lines.length - 2; i++) {
             const a = lines[i], b = lines[i + 1];
-            if (a.length >= 40 && a.length <= 50 && b.length >= 40 && b.length <= 50) {
-                return { type: 'TD3', lines: [a, b], startIndex: i };
-            }
-        }
-    }
-
-    // heurística alternativa: si alguna línea contiene '<<' y otra contiene muchas cifras,
-    // intenta formar TD3 o TD1 con las más cercanas (fallback)
-    for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes('<<')) {
-            // buscar línea con muchos digitos cerca
-            const j = lines.findIndex((_, idx) => idx !== i && /[0-9]{6}/.test(lines[idx]));
-            if (j !== -1) {
-                const pair = i < j ? [lines[i], lines[j]] : [lines[j], lines[i]];
-                return { type: 'UNKNOWN', lines: pair, startIndex: Math.min(i, j) };
+            if (a.length >= 25 && a.length <= 35 &&
+                b.length >= 25 && b.length <= 35) {
+                if (a.includes('<<') || /[0-9]{6,}/.test(b)) {
+                    // Añadir línea 3 vacía si falta
+                    const c = '<'.repeat(30);
+                    return { type: 'TD1', lines: [a, b, c], startIndex: i };
+                }
             }
         }
     }
@@ -326,7 +325,7 @@ class MRZScanner {
     constructor() {
         this.options = {
             maxDim: 1600,
-            cropBottomFraction: 0.22,
+            cropBottomFraction: 0.30,  // Aumentado de 0.22 a 0.30 para mejor cobertura MRZ
             debug: false,
             lang: 'eng'    // idioma por defecto
         };
@@ -375,32 +374,22 @@ class MRZScanner {
                     continue;
                 }
 
-                // Dependiendo del tipo parsear
-                let parsed = null;
-                if (detected.type === 'TD3') {
-                    parsed = parseTD3(detected.lines);
-                } else if (detected.type === 'TD1') {
-                    parsed = parseTD1(detected.lines);
-                } else {
-                    // Unknown: intentar parsear heurísticamente
-                    if (detected.lines.length === 2) parsed = parseTD3(detected.lines);
-                    else if (detected.lines.length === 3) parsed = parseTD1(detected.lines);
-                    else parsed = { format: 'UNKNOWN', raw: detected.lines };
-                }
+                // Parsear TD1 (DNI Hondureño)
+                const parsed = parseTD1(detected.lines);
 
-                // Evaluar validez básica
-                let valid = false;
-                if (parsed.format === 'TD3') {
-                    valid = parsed.validPassportNumber && parsed.validBirthDate && parsed.validExpiryDate && parsed.validFinalCheck;
-                } else if (parsed.format === 'TD1') {
-                    valid = parsed.validDocumentNumber || parsed.validBirthDate || parsed.validExpiryDate;
-                }
+                // Evaluar validez - para TD1 es más permisivo
+                // Al menos uno de los checksums debe ser válido
+                const valid = parsed.validDocumentNumber || parsed.validBirthDate || parsed.validExpiryDate;
 
                 const result = {
                     data: parsed,
                     validation: {
                         status: valid ? 'OK' : 'PARTIAL',
-                        messages: []
+                        messages: [
+                            !parsed.validDocumentNumber ? 'Checksum documento inválido' : '',
+                            !parsed.validBirthDate ? 'Checksum fecha nacimiento inválido' : '',
+                            !parsed.validExpiryDate ? 'Checksum fecha vencimiento inválido' : ''
+                        ].filter(m => m)
                     },
                     strategy: s.name,
                     rawOCR: ocrText
@@ -538,14 +527,15 @@ class MRZScanner {
 
 // Exponer utilidades parseMRZ (parsing a nivel alto)
 // Dado un array de líneas (strings), intenta normalizar y devolver object con campos básicos
+// OPTIMIZADO: Solo procesa TD1 (DNI Hondureño)
 function parseMRZ(lines) {
     if (!Array.isArray(lines)) return null;
     const cleaned = lines.map(l => ('' + l).trim());
     const detected = detectMRZGroup(cleaned);
     if (!detected) return null;
-    if (detected.type === 'TD3') return parseTD3(detected.lines);
     if (detected.type === 'TD1') return parseTD1(detected.lines);
-    // fallback
+    // Fallback para casos desconocidos: intentar como TD1 si tiene 3 líneas
+    if (detected.lines && detected.lines.length === 3) return parseTD1(detected.lines);
     return { format: 'UNKNOWN', raw: detected.lines };
 }
 

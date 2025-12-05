@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escáner DNI SEMUJER</title>
+
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" type="image/png" href="../assets/icon.png">
+    <link rel="apple-touch-icon" href="../assets/icon.png">
+
+    <meta name="theme-color" content="#667eea">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../css/styles.css">
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        .hidden {
+            display: none !important;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Back to Home Button -->
+    <a href="../index.html" class="back-button">
+        <i class="fa-solid fa-arrow-left"></i>
+        Volver al Inicio
+    </a>
+
+    <header class="app-header">
+        <div class="logo-container">
+            <i class="fa-solid fa-id-card"></i>
+            <h1>Escáner DNI <span class="highlight">SEMUJER</span></h1>
+        </div>
+        <div class="status-indicator" id="offline-indicator" style="display: none;">
+            <i class="fa-solid fa-wifi-slash"></i> Offline
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Section 1: Capture -->
+        <section id="capture-section" class="card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-camera"></i> Captura de DNI</h2>
+            </div>
+
+            <div class="card-body">
+                <div class="capture-grid">
+
+                    <!-- FRONT -->
+                    <div class="capture-box" id="box-front">
+                        <h3>Frente</h3>
+
+                        <div class="preview-area" id="preview-front">
+                            <div class="placeholder">
+                                <i class="fa-regular fa-image"></i>
+                                <p>Sin imagen</p>
+                            </div>
+                            <img src="" alt="DNI Frente" class="hidden">
+                        </div>
+
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="app.startCamera('front')">
+                                <i class="fa-solid fa-camera"></i> Cámara
+                            </button>
+
+                            <label class="btn btn-secondary file-label">
+                                <i class="fa-solid fa-upload"></i> Subir
+                                <input type="file" accept="image/*" onchange="app.handleFileUpload(event,'front')"
+                                    hidden>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- BACK -->
+                    <div class="capture-box" id="box-back">
+                        <h3>Reverso (MRZ)</h3>
+
+                        <div class="preview-area" id="preview-back">
+                            <div class="placeholder">
+                                <i class="fa-regular fa-image"></i>
+                                <p>Sin imagen</p>
+                            </div>
+                            <img src="" alt="DNI Reverso" class="hidden">
+                        </div>
+
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="app.startCamera('back')">
+                                <i class="fa-solid fa-camera"></i> Cámara
+                            </button>
+
+                            <label class="btn btn-secondary file-label">
+                                <i class="fa-solid fa-upload"></i> Subir
+                                <input type="file" accept="image/*" onchange="app.handleFileUpload(event,'back')"
+                                    hidden>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="process-actions">
+                    <button id="btn-process" class="btn btn-success btn-large" onclick="app.processImages()" disabled>
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Procesar y Extraer Datos
+                    </button>
+
+                    <button class="btn btn-secondary btn-large" onclick="app.showManualEntry()">
+                        <i class="fa-solid fa-pen-to-square"></i> Ingreso Manual
+                    </button>
+
+                    <div id="processing-status" class="hidden">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <span id="status-text">Procesando...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Citizen Form -->
+        <section id="form-section" class="card hidden">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-user-pen"></i> Datos del Ciudadano</h2>
+            </div>
+
+            <div class="card-body">
+                <form id="dni-form" onsubmit="app.saveRecord(event)">
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label for="dni">Número de Identidad</label>
+                            <input type="text" id="dni" name="dni" required placeholder="0000-0000-00000" maxlength="15"
+                                minlength="15" pattern="\d{4}-\d{4}-\d{5}" inputmode="numeric"
+                                oninput="app.formatDNI(this)">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fullname">Nombre Completo</label>
+                            <input type="text" id="fullname" name="fullname" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gender">Sexo</label>
+                            <select id="gender" name="gender" required>
+                                <option value="">Seleccione</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dob">Fecha de Nacimiento</label>
+                            <input type="date" id="dob" name="dob" required onchange="app.calculateAge()">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="age">Edad</label>
+                            <input type="number" id="age" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="age-range">Rango de Edad</label>
+                            <input type="text" id="age-range" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Teléfono</label>
+                            <input type="tel" id="phone" placeholder="0000-0000" maxlength="9" minlength="9"
+                                pattern="\d{4}-\d{4}" inputmode="numeric" oninput="app.formatPhone(this)">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="department">Departamento</label>
+                            <select id="department" onchange="app.loadMunicipalities()">
+                                <option value="">Seleccione</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="municipality">Municipio</label>
+                            <select id="municipality">
+                                <option value="">Seleccione Departamento primero</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="app.resetForm()">Limpiar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Registro</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Section 3: Records -->
+        <section id="records-section" class="card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-table-list"></i> Registros Guardados</h2>
+
+                <div class="header-actions">
+                    <button class="btn btn-small btn-excel" onclick="app.exportExcel()">
+                        <i class="fa-solid fa-file-excel"></i> Excel
+                    </button>
+
+                    <button class="btn btn-small btn-pdf" onclick="app.exportPDF()">
+                        <i class="fa-solid fa-file-pdf"></i> PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="records-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>DNI</th>
+                                <th>Nombre</th>
+                                <th>Edad</th>
+                                <th>Teléfono</th>
+                                <th>Ubicación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr class="empty-row">
+                                <td colspan="7">No hay registros aún.</td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div id="pagination-controls" class="pagination-controls"></div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section (Ahora dentro del MAIN) -->
+        <section id="dashboard-section" class="card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-chart-pie"></i> Estadísticas</h2>
+            </div>
+
+            <div class="card-body">
+                <div class="stats-grid">
+                    <div class="stat-card stat-total">
+                        <h3>Total Registros</h3>
+                        <p id="total-registros" class="stat-value">0</p>
+                    </div>
+                    <div class="stat-card stat-avg">
+                        <h3>Edad Promedio</h3>
+                        <p id="edad-promedio" class="stat-value">0</p>
+                    </div>
+                    <div class="stat-card stat-min">
+                        <h3>Edad Mín</h3>
+                        <p id="edad-min" class="stat-value">0</p>
+                    </div>
+                    <div class="stat-card stat-max">
+                        <h3>Edad Máx</h3>
+                        <p id="edad-max" class="stat-value">0</p>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h4>Distribución por Sexo</h4>
+                        <canvas id="chart-gender"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4>Distribución por Edad</h4>
+                        <canvas id="chart-age"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4>Top Departamentos</h4>
+                        <canvas id="chart-department"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4>Top Municipios</h4>
+                        <canvas id="chart-municipality"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Camera Modal (CORREGIDO) -->
+    <div id="camera-modal" class="modal hidden">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h3>Capturar Imagen</h3>
+                <button class="close-btn" onclick="cameraManager.closeCamera()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <video id="camera-video" autoplay playsinline></video>
+                <canvas id="camera-canvas" style="display:none;"></canvas>
+                <div id="crop-frame"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="cameraManager.capture()">Tomar foto</button>
+                <button class="btn btn-secondary" onclick="cameraManager.closeCamera()">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- QR Modal -->
+    <div id="qr-modal" class="modal hidden">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h3>Código QR</h3>
+                <button class="close-btn" onclick="UIHelpers.closeModal('qr-modal')">×</button>
+            </div>
+
+            <div class="modal-body">
+                <div id="qr-code-display" style="display:flex; justify-content:center; padding:1rem;"></div>
+                <p id="qr-record-info" style="text-align:center; margin-top:10px;"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="QRManager.copyQRDataToClipboard()">Copiar datos</button>
+                <button class="btn btn-primary" onclick="QRManager.downloadQRAsImage()">Descargar</button>
+                <button class="btn btn-secondary" onclick="UIHelpers.closeModal('qr-modal')">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/dni/locations.js"></script>
+    <script src="../js/dni/db.js"></script>
+    <script src="../js/dni/mrz.js"></script>
+    <script src="../js/dni/ocr-front.js"></script>
+    <script src="../js/dni/camera.js"></script>
+    <script src="../js/dni/pagination.js"></script>
+    <script src="../js/dni/statistics.js"></script>
+    <script src="../js/dni/qrcode-handler.js"></script>
+    <script src="../js/dni/app.js"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('../sw.js')
+                    .then(() => console.log('SW Registered'))
+                    .catch(err => console.error('SW error', err));
+            }
+        });
+    </script>
+
+</body>
+
+</html>
