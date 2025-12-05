@@ -1,5 +1,5 @@
 // QR Code Manager
-const QRManager = {
+window.QRManager = {
     currentRecord: null,
 
     generateRecordQR: async (recordId) => {

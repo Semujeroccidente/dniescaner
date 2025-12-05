@@ -1,5 +1,5 @@
 // Dashboard Statistics Manager
-const DashboardStats = {
+window.DashboardStats = {
     charts: {},
     chartColors: {
         primary: '#667eea',
@@ -143,7 +143,7 @@ const DashboardStats = {
                     borderWidth: 2
                 }]
             },
-                options: {
+            options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
@@ -198,7 +198,7 @@ const DashboardStats = {
                     borderSkipped: false
                 }]
             },
-                options: {
+            options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 indexAxis: 'x',
