@@ -606,25 +606,26 @@
 }
 
 /* Responsive */
+/* Responsive Design Improvements */
+
+/* Tablets and small desktops */
 @media (max-width: 1024px) {
     .agenda-grid {
         grid-template-columns: 1fr;
     }
 
+    /* On tablets, show appointments list ABOVE calendar for better access */
     .appointments-section {
         order: -1;
-        /* Show appointments before calendar on tablets */
     }
 }
 
+/* Mobile Devices */
 @media (max-width: 768px) {
-
-    /* Container adjustments */
     .agenda-container {
         padding: 10px;
     }
 
-    /* Header adjustments */
     .calendar-header {
         flex-direction: column;
         gap: 12px;
@@ -641,163 +642,91 @@
         min-width: auto;
     }
 
-    .calendar-navigation button {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
-
-    /* Calendar adjustments */
     .calendar {
-        gap: 6px;
-        padding: 12px;
+        gap: 4px;
+        padding: 8px;
     }
 
     .calendar-day {
-        padding: 8px 4px;
-        min-height: 60px;
-        border-radius: 14px;
+        min-height: 50px;
+        padding: 4px;
+        border-radius: 12px;
     }
 
-    .calendar-day.has-appointment::after {
-        min-width: 20px;
-        height: 20px;
-        font-size: 0.65rem;
-        top: 3px;
-        right: 3px;
+    .calendar-day-header {
+        font-size: 0.75rem;
+        padding: 8px 2px;
     }
 
     .day-number {
         font-size: 1rem;
     }
 
-    .day-appointments {
-        font-size: 0.65rem;
-        padding: 1px 6px;
+    .calendar-day.has-appointment::after {
+        min-width: 18px;
+        height: 18px;
+        font-size: 0.6rem;
+        top: 2px;
+        right: 2px;
     }
 
-    /* Section spacing */
-    .calendar-section,
-    .appointments-section,
-    .form-section {
-        padding: 16px;
-        margin-bottom: 15px;
+    .appointment-item {
+        padding: 14px;
+    }
+
+    .appointment-actions {
+        flex-direction: column;
+    }
+
+    .appointment-actions button {
+        width: 100%;
+    }
+
+    /* Search and filter stacking */
+    .appointments-filter {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-box i,
+    .filter-box i {
+        top: 14px;
+        /* Adjust vertical center for potentially larger inputs */
+    }
+}
+
+/* Small Phones */
+@media (max-width: 480px) {
+    .day-number {
+        font-size: 0.9rem;
+    }
+
+    .calendar-day {
+        min-height: 45px;
     }
 
     .section-title {
         font-size: 1.1rem;
-        margin-bottom: 15px;
     }
 
-    /* Appointments list */
-    .appointment-item {
-        padding: 12px;
+    .page-header h1 {
+        font-size: 1.5rem;
     }
 
-    .appointment-time {
-        font-size: 0.85rem;
-    }
-
-    .appointment-title {
-        font-size: 0.95rem;
-    }
-
-    .appointment-description {
-        font-size: 0.85rem;
-    }
-
-    .appointment-actions {
-        flex-wrap: wrap;
-    }
-
-    .appointment-actions button {
-        flex: 1;
-        min-width: 120px;
-    }
-
-    /* Form adjustments */
-    .form-group label {
-        font-size: 0.9rem;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-        padding: 10px 12px;
-        font-size: 0.95rem;
-    }
-
-    /* Checkbox group mobile optimization */
     .checkbox-group {
-        padding: 10px;
-        gap: 8px;
+        grid-template-columns: 1fr;
+        /* Stack checkboxes on very small screens */
     }
 
-    .checkbox-label {
-        padding: 10px;
+    .checkbox-all {
+        grid-column: span 1;
     }
 
-    .checkbox-label span {
-        font-size: 0.9rem;
-    }
-
-    .checkbox-label input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-    }
-
-    /* Form actions */
-    .form-actions {
-        flex-direction: column;
-    }
-
-    .form-actions button {
-        width: 100%;
-        padding: 12px;
-        font-size: 0.95rem;
-    }
-
-    /* Toast notifications mobile */
-    .toast {
-        bottom: 20px;
-        right: 20px;
-        left: 20px;
-        font-size: 0.9rem;
-        padding: 14px 18px;
-    }
-}
-
-/* Extra small devices (phones in portrait) */
-@media (max-width: 480px) {
-    .agenda-container {
-        padding: 8px;
-    }
-
-    .calendar-header {
-        padding: 12px;
-    }
-
-    .calendar-navigation h2 {
-        font-size: 1rem;
-    }
-
+    /* Better touch targets */
+    .btn-submit,
+    .btn-cancel,
     .calendar-navigation button {
-        padding: 6px 10px;
-    }
-
-    .calendar {
-        gap: 5px;
-        padding: 10px;
-    }
-
-    .calendar-day {
-        padding: 6px 2px;
-        min-height: 55px;
-        font-size: 0.75rem;
-    }
-
-    .calendar-day.has-appointment::after {
-        min-width: 18px;
-        height: 18px;
+        padding: 12px;
     }
 }
 
@@ -846,7 +775,9 @@
         padding: 14px;
         font-size: 1.1rem;
     }
-}/* Search and Filter Styles */
+}
+
+/* Search and Filter Styles */
 .appointments-filter {
     display: flex;
     gap: 10px;
