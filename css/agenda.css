@@ -395,12 +395,25 @@
     .agenda-grid {
         grid-template-columns: 1fr;
     }
+
+    .appointments-section {
+        order: -1;
+        /* Show appointments before calendar on tablets */
+    }
 }
 
 @media (max-width: 768px) {
+
+    /* Container adjustments */
+    .agenda-container {
+        padding: 10px;
+    }
+
+    /* Header adjustments */
     .calendar-header {
         flex-direction: column;
-        gap: 16px;
+        gap: 12px;
+        padding: 15px;
     }
 
     .calendar-navigation {
@@ -409,23 +422,168 @@
     }
 
     .calendar-navigation h2 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         min-width: auto;
     }
 
+    .calendar-navigation button {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    /* Calendar adjustments */
     .calendar {
-        gap: 6px;
+        gap: 4px;
     }
 
     .calendar-day {
-        padding: 4px;
+        padding: 2px;
+        border-width: 1px;
     }
 
     .day-number {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
     }
 
     .day-appointments {
         display: none;
+    }
+
+    /* Section spacing */
+    .calendar-section,
+    .appointments-section,
+    .form-section {
+        padding: 16px;
+        margin-bottom: 15px;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+
+    /* Appointments list */
+    .appointment-item {
+        padding: 12px;
+    }
+
+    .appointment-time {
+        font-size: 0.85rem;
+    }
+
+    .appointment-title {
+        font-size: 0.95rem;
+    }
+
+    .appointment-description {
+        font-size: 0.85rem;
+    }
+
+    .appointment-actions {
+        flex-wrap: wrap;
+    }
+
+    .appointment-actions button {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    /* Form adjustments */
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+
+    /* Checkbox group mobile optimization */
+    .checkbox-group {
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .checkbox-label {
+        padding: 10px;
+    }
+
+    .checkbox-label span {
+        font-size: 0.9rem;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Form actions */
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions button {
+        width: 100%;
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Extra small devices (phones in portrait) */
+@media (max-width: 480px) {
+    .agenda-container {
+        padding: 8px;
+    }
+
+    .calendar-header {
+        padding: 12px;
+    }
+
+    .calendar-navigation h2 {
+        font-size: 1rem;
+    }
+
+    .calendar-navigation button {
+        padding: 6px 10px;
+    }
+
+    .calendar {
+        gap: 3px;
+    }
+
+    .calendar-day {
+        padding: 1px;
+        font-size: 0.75rem;
+    }
+
+    .day-number {
+        font-size: 0.75rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+    }
+
+    .appointment-item {
+        padding: 10px;
+    }
+
+    .appointment-time,
+    .appointment-description {
+        font-size: 0.8rem;
+    }
+
+    .appointment-title {
+        font-size: 0.9rem;
+    }
+
+    .checkbox-label {
+        padding: 8px;
+    }
+
+    .checkbox-label span {
+        font-size: 0.85rem;
     }
 }
