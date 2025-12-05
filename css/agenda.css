@@ -297,59 +297,118 @@
     min-height: 80px;
 }
 
-/* Checkbox Group */
+/* Checkbox group - Modern Card Style */
 .checkbox-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px;
-    background: #f7fafc;
-    border-radius: 10px;
-    border: 2px solid #e2e8f0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 0;
+    background: transparent;
+    border: none;
 }
 
 .checkbox-label {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 12px;
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .checkbox-label:hover {
-    background: #edf2f7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.2);
     border-color: #f093fb;
 }
 
 .checkbox-label input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    accent-color: #f093fb;
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Custom checkbox indicator */
+.checkbox-label::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    background: white;
+    flex-shrink: 0;
 }
 
 .checkbox-label span {
-    font-size: 0.95rem;
-    color: #2d3748;
+    font-size: 0.9rem;
+    color: #4a5568;
     user-select: none;
+    font-weight: 500;
+    text-align: center;
+    flex: 1;
 }
 
-.checkbox-label input[type="checkbox"]:checked+span {
+/* Checked state */
+.checkbox-label input[type="checkbox"]:checked~span {
     color: #f5576c;
+    font-weight: 700;
+}
+
+.checkbox-label:has(input[type="checkbox"]:checked) {
+    background: linear-gradient(135deg, #f093fb15 0%, #f5576c15 100%);
+    border-color: #f093fb;
+    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
+}
+
+.checkbox-label:has(input[type="checkbox"]:checked)::before {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-color: #f093fb;
+    content: '✓';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Special styling for "Todo el Equipo" */
+.checkbox-all {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #f093fb08 0%, #f5576c08 100%);
+    border: 2px dashed #f093fb;
+}
+
+.checkbox-all span {
     font-weight: 600;
 }
 
-.checkbox-all {
-    background: linear-gradient(135deg, #f093fb10 0%, #f5576c10 100%);
-    border: 2px solid #f093fb;
+.checkbox-all:hover {
+    background: linear-gradient(135deg, #f093fb15 0%, #f5576c15 100%);
+    border-style: solid;
 }
 
-.checkbox-all:hover {
-    background: linear-gradient(135deg, #f093fb20 0%, #f5576c20 100%);
+.checkbox-all:has(input[type="checkbox"]:checked) {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-color: #f093fb;
+}
+
+.checkbox-all:has(input[type="checkbox"]:checked) span {
+    color: white;
+}
+
+.checkbox-all:has(input[type="checkbox"]:checked)::before {
+    border-color: white;
+    background: white;
+    color: #f5576c;
 }
 
 
