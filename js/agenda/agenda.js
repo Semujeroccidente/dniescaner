@@ -7,7 +7,7 @@ class AgendaApp {
         this.appointments = [];
         this.editingId = null;
         this.dbName = 'AgendaDB';
-        this.dbVersion = 1;
+        this.dbVersion = 2;
         this.db = null;
 
         this.init();
@@ -15,6 +15,8 @@ class AgendaApp {
 
     async init() {
         await this.initDB();
+        await this.ensureStaffDefaults();
+        await this.loadStaff();
         await this.loadAppointments();
         this.renderCalendar();
         this.renderAppointments();
@@ -39,8 +41,109 @@ class AgendaApp {
                     store.createIndex('date', 'date', { unique: false });
                     store.createIndex('time', 'time', { unique: false });
                 }
+                // Ensure staff store exists
+                if (!db.objectStoreNames.contains('staff')) {
+                    const staffStore = db.createObjectStore('staff', { keyPath: 'id', autoIncrement: true });
+                    staffStore.createIndex('role', 'role', { unique: true });
+                }
             };
         });
+    }
+
+
+
+    // New: Seed Default Staff if missing
+    async ensureStaffDefaults() {
+        return new Promise((resolve) => {
+            const tx = this.db.transaction('staff', 'readwrite');
+            const store = tx.objectStore('staff');
+            const countReq = store.count();
+
+            countReq.onsuccess = () => {
+                if (countReq.result === 0) {
+                    const defaults = [
+                        { role: 'JEFE DE REGIONAL', icon: 'fa-solid fa-user-check' },
+                        { role: 'OFICIAL JURIDICO', icon: 'fa-solid fa-gavel' },
+                        { role: 'ASISTENTE JURIDICO', icon: 'fa-solid fa-scale-balanced' },
+                        { role: 'TECNICO', icon: 'fa-solid fa-laptop-code' },
+                        { role: 'CONDUCTOR', icon: 'fa-solid fa-car' }
+                    ];
+                    defaults.forEach(d => store.add(d));
+                    console.log("Seeded default staff in Agenda");
+                }
+                resolve();
+            };
+            countReq.onerror = () => resolve(); // Ignore error
+        });
+    }
+
+    // New: Load and Render Staff
+    async loadStaff() {
+        return new Promise((resolve) => {
+            const tx = this.db.transaction('staff', 'readonly');
+            const store = tx.objectStore('staff');
+            const req = store.getAll();
+
+            req.onsuccess = () => {
+                const staff = req.result;
+                this.renderStaffFilters(staff);
+                this.renderStaffSelection(staff);
+                resolve();
+            };
+        });
+    }
+
+    renderStaffFilters(staff) {
+        const select = document.getElementById('filter-staff');
+        if (!select) return;
+        select.innerHTML = '<option value="">Todos los miembros</option>';
+        staff.forEach(s => {
+            select.innerHTML += `<option value="${s.role}">${this.capitalize(s.role)}</option>`;
+        });
+    }
+
+    renderStaffSelection(staff) {
+        const container = document.getElementById('appointment-staff');
+        if (!container) return;
+        container.innerHTML = '';
+
+        staff.forEach(s => {
+            const label = document.createElement('label');
+            label.className = 'chip-choice';
+            label.innerHTML = `
+                <input type="checkbox" name="staff" value="${s.role}">
+                <span class="chip-content">
+                    <i class="${s.icon || 'fa-solid fa-user'}"></i> ${this.capitalize(s.role)}
+                </span>
+            `;
+            container.appendChild(label);
+        });
+
+        // Add "All Team" option
+        const allLabel = document.createElement('label');
+        allLabel.className = 'chip-choice chip-all';
+        allLabel.innerHTML = `
+            <input type="checkbox" name="staff" value="TODO EL EQUIPO" id="select-all-staff">
+            <span class="chip-content">
+                <i class="fa-solid fa-users"></i> Todo el Equipo
+            </span>
+        `;
+        container.appendChild(allLabel);
+
+        // Attach Select All event
+        setTimeout(() => {
+            const allCheckbox = document.getElementById('select-all-staff');
+            if (allCheckbox) {
+                allCheckbox.addEventListener('change', (e) => {
+                    const checkboxes = document.querySelectorAll('input[name="staff"]:not(#select-all-staff)');
+                    checkboxes.forEach(cb => cb.checked = e.target.checked);
+                });
+            }
+        }, 0);
+    }
+
+    capitalize(str) {
+        return str.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
     }
 
     // Load appointments from IndexedDB

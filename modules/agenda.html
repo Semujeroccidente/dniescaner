@@ -105,23 +105,6 @@
         <div class="page-header">
             <h1><i class="fa-solid fa-calendar-days"></i> Agenda</h1>
             <p>Organiza tus citas y eventos de manera eficiente</p>
-        </div>
-
-        <!-- Calendar Header with Navigation -->
-        <div class="calendar-header">
-            <div class="calendar-navigation">
-                <button id="btn-prev-month" title="Mes anterior">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <h2 id="current-month-year">Diciembre 2025</h2>
-                <button id="btn-next-month" title="Mes siguiente">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
-            </div>
-
-            <button id="btn-today"
-                style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 10px 20px; border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer;">
-                <i class="fa-solid fa-calendar-day"></i> Hoy
             </button>
         </div>
 
@@ -153,14 +136,12 @@
                     <div class="filter-box">
                         <i class="fa-solid fa-filter"></i>
                         <select id="filter-staff">
-                            <option value="">Todos los miembros</option>
-                            <option value="JEFE DE REGIONAL">Jefe de Regional</option>
-                            <option value="OFICIAL JURIDICO">Oficial Jurídico</option>
-                            <option value="ASISTENTE JURIDICO">Asistente Jurídico</option>
-                            <option value="TECNICO">Técnico</option>
-                            <option value="CONDUCTOR">Conductor</option>
+                            <option value="">Cargando personal...</option>
                         </select>
                     </div>
+                    <button id="btn-export-pdf" class="btn-export-pdf" title="Exportar Reporte PDF">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </button>
                 </div>
                 <div id="appointments-list" class="appointments-list">
                     <!-- Appointments will be rendered here by JS -->
@@ -171,6 +152,7 @@
 
         <!-- Form Section -->
         <div id="form-section" class="form-section glass-panel">
+            <!-- Form Content -->
             <div class="form-header">
                 <div class="icon-box">
                     <i class="fa-solid fa-calendar-plus"></i>
@@ -251,42 +233,8 @@
                         Personal Asignado
                     </label>
                     <div class="chip-group" id="appointment-staff">
-                        <label class="chip-choice">
-                            <input type="checkbox" name="staff" value="JEFE DE REGIONAL">
-                            <span class="chip-content">
-                                <i class="fa-solid fa-user-check"></i> Jefe Regional
-                            </span>
-                        </label>
-                        <label class="chip-choice">
-                            <input type="checkbox" name="staff" value="OFICIAL JURIDICO">
-                            <span class="chip-content">
-                                <i class="fa-solid fa-gavel"></i> Oficial Jurídico
-                            </span>
-                        </label>
-                        <label class="chip-choice">
-                            <input type="checkbox" name="staff" value="ASISTENTE JURIDICO">
-                            <span class="chip-content">
-                                <i class="fa-solid fa-scale-balanced"></i> Asistente Jur.
-                            </span>
-                        </label>
-                        <label class="chip-choice">
-                            <input type="checkbox" name="staff" value="TECNICO">
-                            <span class="chip-content">
-                                <i class="fa-solid fa-laptop-code"></i> Técnico
-                            </span>
-                        </label>
-                        <label class="chip-choice">
-                            <input type="checkbox" name="staff" value="CONDUCTOR">
-                            <span class="chip-content">
-                                <i class="fa-solid fa-car"></i> Conductor
-                            </span>
-                        </label>
-                        <label class="chip-choice chip-all">
-                            <input type="checkbox" name="staff" value="TODO EL EQUIPO" id="select-all-staff">
-                            <span class="chip-content">
-                                <i class="fa-solid fa-users"></i> Todo el Equipo
-                            </span>
-                        </label>
+                        <!-- Dynamic Staff Logic Here -->
+                        <p style="color:#718096; width:100%;">Cargando...</p>
                     </div>
                 </div>
 
@@ -329,7 +277,13 @@
         </div>
     </div>
 
+    <!-- PDF Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
     <script src="../js/agenda/agenda.js"></script>
+    <script src="../js/agenda/reports.js"></script>
+    <script src="../js/agenda/notifications.js"></script>
 
     <script>
         // Service Worker Registration

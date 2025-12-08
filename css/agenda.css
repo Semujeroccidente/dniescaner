@@ -69,6 +69,36 @@
     box-shadow: 0 6px 15px rgba(240, 147, 251, 0.4);
 }
 
+/* Notification Button */
+.btn-notification {
+    background: white;
+    color: #a0aec0;
+    border: 1px solid #e2e8f0;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.btn-notification:hover {
+    transform: scale(1.05);
+    background: #f7fafc;
+}
+
+.btn-notification.active {
+    background: #f0fff4;
+    border-color: #9ae6b4;
+    color: #48bb78;
+    /* Green */
+    box-shadow: 0 4px 10px rgba(72, 187, 120, 0.2);
+}
+
 .calendar-navigation h2 {
     font-size: 1.8rem;
     font-weight: 800;
@@ -268,6 +298,30 @@
     font-size: 0.9rem;
     background: #f8fafc;
     transition: border 0.2s;
+}
+
+/* Export Button */
+.btn-export-pdf {
+    width: 48px;
+    height: 48px;
+    /* Match height of inputs ~46-48px */
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    /* Red for PDF */
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(229, 62, 62, 0.3);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-export-pdf:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(229, 62, 62, 0.4);
 }
 
 .search-box input:focus,
@@ -566,139 +620,186 @@
 }
 
 /* --- Responsive Adjustments --- */
+/* --- Responsive Adjustments --- */
 @media (max-width: 1024px) {
     .agenda-grid {
         grid-template-columns: 1fr;
         /* Stack calendar and appointments */
-        gap: 20px;
+        gap: 30px;
     }
 
     .appointments-section {
         max-height: none;
-        /* Allow full height on tablet/mobile */
         overflow: visible;
-    }
-
-    .calendar-navigation h2 {
-        font-size: 1.5rem;
-        min-width: auto;
+        border-left: none;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        /* Separator */
+        padding-top: 30px;
     }
 }
 
 @media (max-width: 768px) {
     .agenda-container {
-        padding: 15px;
-        /* Slightly more breathing room than 10px */
+        padding: 10px;
+        /* Maximize space */
     }
 
-    .glass-panel {
-        padding: 20px;
-        border-radius: 20px;
-    }
-
+    /* Header Compactness */
     .calendar-header {
         flex-direction: column;
         gap: 15px;
-        text-align: center;
-        padding: 20px;
+        padding: 15px;
     }
 
     .calendar-navigation {
         width: 100%;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 40px 1fr 40px;
+        /* Precise control */
+        gap: 10px;
+        align-items: center;
+        justify-items: center;
     }
 
     .calendar-navigation h2 {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
+        /* Smaller title */
+        white-space: nowrap;
+        /* Prevent wrapping */
         order: 2;
-        /* Keep title in center if possible, or adjust */
+        min-width: 0;
     }
 
     .calendar-navigation button {
         order: 1;
-        /* Prev button */
     }
 
     .calendar-navigation button:last-child {
         order: 3;
-        /* Next button */
-    }
-
-    /* specific tweak to keep nav buttons separated */
-    .calendar-navigation {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        justify-items: center;
-        width: 100%;
     }
 
     #btn-today {
         width: 100%;
-        margin-top: 10px;
+        padding: 12px;
+        font-size: 0.9rem;
     }
 
+    /* Compact Calendar Grid */
     .calendar {
         padding: 10px;
-        gap: 8px;
+        gap: 4px;
+        /* Tight gap */
+        border-radius: 16px;
     }
 
     .calendar-day-header {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
+        padding: 5px 0;
+        letter-spacing: 0.5px;
     }
 
     .calendar-day {
-        min-height: 50px;
-        /* Compact but usable */
-        border-radius: 12px;
+        min-height: 45px;
+        /* Very compact */
+        aspect-ratio: auto;
+        /* Allow height to flex */
+        padding-top: 6px;
+        border-radius: 10px;
     }
 
     .day-number {
-        font-size: 1rem;
+        font-size: 0.9rem;
+        width: 24px;
+        height: 24px;
+        margin-bottom: 2px;
     }
 
     .calendar-day.today .day-number {
-        font-size: 1.1rem;
+        font-size: 0.95rem;
+        width: 26px;
+        height: 26px;
     }
 
-    /* Form Mobile Optimizations */
+    /* Event Dot Adjustment */
+    .calendar-day.has-appointment::after {
+        width: 4px;
+        height: 4px;
+        bottom: 4px;
+    }
+
+    /* Form Optimizations */
+    .glass-panel {
+        padding: 20px 15px;
+        /* Less side padding */
+    }
+
+    .icon-box {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
     .form-row {
         flex-direction: column;
         gap: 15px;
     }
 
     .time-selector-container {
-        flex-direction: row;
-        /* Keep time inline if possible, or wrap */
         flex-wrap: wrap;
-        justify-content: center;
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
     }
 
     .time-select {
+        flex: 1;
+        /* Distribute space evenly */
         min-width: 60px;
+        padding: 10px 5px;
+        font-size: 0.9rem;
         text-align: center;
     }
 
+    .time-separator {
+        display: none;
+        /* Hide colon on mobile to save space */
+    }
+
+    /* Chip Choices */
     .chip-group {
-        justify-content: center;
+        gap: 8px;
     }
 
     .chip-choice {
+        width: calc(50% - 4px);
+        /* 2 per row */
+        flex-grow: 1;
+    }
+
+    .chip-all {
         width: 100%;
-        /* Full width touch targets for ease */
-        max-width: 100%;
+        /* All team full width */
     }
 
     .chip-content {
         justify-content: center;
-        padding: 12px;
+        width: 100%;
+        padding: 10px;
+        font-size: 0.85rem;
     }
 
     .form-actions {
         flex-direction: column;
+        gap: 12px;
     }
 
     .form-actions button {
         width: 100%;
+        padding: 14px;
     }
 }
 
@@ -710,18 +811,23 @@
     transform: translateX(-50%) translateY(100px);
     background: white;
     color: #2d3748;
-    padding: 16px 24px;
+    padding: 12px 20px;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     display: flex;
     align-items: center;
     gap: 12px;
     font-weight: 600;
+    font-size: 0.9rem;
+    /* Smaller text on toast */
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     z-index: 2000;
     pointer-events: none;
-    border-left: 5px solid #667eea;
+    border-left: 4px solid #667eea;
+    width: 90%;
+    /* Max width on mobile */
+    max-width: 400px;
 }
 
 .toast.show {
@@ -735,7 +841,7 @@
 
 .toast-success i {
     color: #48bb78;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 .toast-error {
@@ -744,7 +850,7 @@
 
 .toast-error i {
     color: #f56565;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 /* Modal Styles */
@@ -763,6 +869,8 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    padding: 20px;
+    /* Padding for safe area */
 }
 
 .modal-overlay.show {
@@ -772,10 +880,10 @@
 
 .modal-container {
     background: white;
-    width: 90%;
-    max-width: 400px;
+    width: 100%;
+    max-width: 350px;
     border-radius: 20px;
-    padding: 30px;
+    padding: 25px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
     transform: translateY(20px);
     transition: all 0.3s ease;
@@ -786,23 +894,15 @@
 }
 
 .modal-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-    text-align: center;
+    margin-bottom: 15px;
 }
 
 .modal-header i {
-    font-size: 3rem;
-    color: #f56565;
+    font-size: 2.5rem;
 }
 
 .modal-header h3 {
-    font-size: 1.5rem;
-    color: #2d3748;
-    margin: 0;
+    font-size: 1.3rem;
 }
 
 .modal-body p {

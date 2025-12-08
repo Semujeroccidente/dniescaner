@@ -145,9 +145,8 @@
     background: var(--secondary-gradient);
 }
 
-.module-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+.module-card.directory::before {
+    background: var(--success-gradient);
 }
 
 /* Animations */

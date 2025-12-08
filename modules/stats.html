@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - SEMUJER</title>
+
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" type="image/png" href="../assets/icon.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/stats.css">
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <a href="../index.html" class="back-button">
+        <i class="fa-solid fa-arrow-left"></i>
+        Volver al Inicio
+    </a>
+
+    <div class="stats-container">
+
+        <div class="stats-header">
+            <h1><i class="fa-solid fa-chart-pie"></i> Panel de Estadísticas</h1>
+            <p>Análisis de datos y métricas de impacto</p>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon color-blue">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Total Beneficiarias</h3>
+                    <p id="kpi-beneficiaries">--</p>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon color-green">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Citas Realizadas</h3>
+                    <p id="kpi-appointments">--</p>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon color-purple">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Escaneos DNI</h3>
+                    <p id="kpi-scans">--</p>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon color-orange">
+                    <i class="fa-solid fa-user-doctor"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Personal Activo</h3>
+                    <p id="kpi-staff">--</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+
+            <!-- Appointments Trend -->
+            <div class="chart-container full-width">
+                <div class="chart-header">
+                    <h3>Atenciones Mensuales</h3>
+                    <select id="year-filter" class="chart-filter">
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="chart-appointments"></canvas>
+                </div>
+            </div>
+
+            <!-- Demographics -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Rango de Edades</h3>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="chart-ages"></canvas>
+                </div>
+            </div>
+
+            <!-- Geography -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3>Distribución Geográfica</h3>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="chart-geo"></canvas>
+                </div>
+            </div>
+
+            <!-- Staff Workload -->
+            <div class="chart-container full-width">
+                <div class="chart-header">
+                    <h3>Carga de Trabajo por Personal</h3>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="chart-staff"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
+    <script src="../js/stats/stats.js"></script>
+
+</body>
+
+</html>
