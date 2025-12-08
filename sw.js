@@ -1,5 +1,5 @@
-const CACHE_NAME = 'dni-scanner-v3';
-const LOCAL_ASSETS = ['./', './index.html', './css/styles.css', './js/app.js', './js/camera.js', './js/db.js', './js/locations.js', './js/mrz.js', './js/ocr-front.js', './manifest.json', './assets/icon.png'];
+const CACHE_NAME = 'dni-scanner-v5';
+const LOCAL_ASSETS = ['./', './index.html', './css/styles.css', './js/dni/app.js', './js/dni/camera.js', './js/dni/db.js', './js/dni/locations.js', './js/dni/mrz.js', './js/dni/pagination.js', './js/dni/qrcode-handler.js', './manifest.json', './assets/icon.png'];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const url = event.request.url;
     const isLocal = url.startsWith(self.location.origin);
-    
+
     if (isLocal) {
         // Cache first for local assets
         event.respondWith(
@@ -46,7 +46,7 @@ self.addEventListener('fetch', (event) => {
                     if (response && response.status === 200) {
                         caches.open(CACHE_NAME)
                             .then((cache) => cache.put(event.request, response.clone()))
-                            .catch(() => {});
+                            .catch(() => { });
                     }
                     return response;
                 })

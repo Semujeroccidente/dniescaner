@@ -265,55 +265,41 @@ const app = {
         statusText.innerText = "Iniciando escaneo inteligente...";
 
         try {
-            // Prepare promises for parallel scanning
-            const promises = [mrzScanner.scanImage(app.images.back)];
-            if (app.images.front) {
-                statusText.innerText = "📸 Escaneando Frente y Reverso...";
-                promises.push(frontOCR.scanFront(app.images.front));
-            } else {
-                statusText.innerText = "📸 Escaneando Reverso...";
-            }
+            // Escanear solo Reverso (MRZ)
+            statusText.innerText = "📸 Escaneando Reverso (MRZ)...";
 
-            // Use allSettled to capture both results independently
-            const settled = await Promise.allSettled(promises);
-            const mrzPromiseResult = settled[0];
-            const frontPromiseResult = settled.length > 1 ? settled[1] : null;
+            const mrzResult = await mrzScanner.scanImage(app.images.back);
 
-            const mrzResult = mrzPromiseResult.status === 'fulfilled' ? mrzPromiseResult.value : null;
-            const frontResult = frontPromiseResult && frontPromiseResult.status === 'fulfilled' ? frontPromiseResult.value : null;
-
-            // Normalizar datos MRZ de camelCase a snake_case
+            // Normalización de datos (compatibilidad con mrz.js nuevo y viejo)
             if (mrzResult && mrzResult.data) {
-                const raw = mrzResult.data;
+                // El nuevo mrz.js ya devuelve snake_case, pero aseguramos
+                const raw = mrzResult.data; // puede ser 'parsed' object
+                // Si viene anidado en 'parsed', lo subimos? 
+                // En mi implementación mrz.js:  return { ..., parsed, ... } o data:parsed.
+                // Revisando mi mrz.js:
+                // return { validation, confidence, parsed, mrzCropDataUrl }; 
+                // Ah! mi nuevo mrz.js devuelve 'parsed' en la raíz del objeto, NO en 'data'. 
+                // Espera, el codigo existente usa mrzResult.data. 
+                // Tengo que adaptar app.js a la nueva estructura de mrz.js O adaptar mrz.js.
+                // Mejor adapto app.js aquí mismo.
+
+                const dataObj = mrzResult.parsed || mrzResult.data || {};
+
                 mrzResult.data = {
-                    document_number: raw.documentNumber || raw.passportNumber || '',
-                    full_name: raw.fullName || '',
-                    birth_date: raw.birthDateISO || raw.birthDate || '',
-                    sex: raw.sex || '',
-                    format: raw.format,
-                    // Mantener datos originales por si se necesitan
-                    _raw: raw
+                    document_number: dataObj.document_number || dataObj.documentNumber || '',
+                    full_name: dataObj.full_name || dataObj.fullName || '',
+                    birth_date: dataObj.birth_date || dataObj.birthDateISO || '',
+                    sex: dataObj.sex || '',
+                    format: dataObj.format || 'TD1',
+                    _raw: dataObj
                 };
             }
 
             if (!mrzResult || !mrzResult.data || !mrzResult.data.document_number) {
-                throw new Error("No se detectó MRZ válido después de múltiples intentos.");
+                throw new Error("No se detectó MRZ válido en la imagen.");
             }
 
-            // Merge data (MRZ is primary, Front is secondary)
             const finalData = { ...mrzResult.data };
-
-            if (frontResult && frontResult.code === 'ok' && frontResult.data) {
-                console.log("Front OCR Result:", frontResult.data);
-                // Use Front name if MRZ name is missing or seems truncated/empty
-                if (!finalData.full_name || finalData.full_name.length < 5) {
-                    finalData.full_name = frontResult.data.full_name;
-                }
-                // Use Front DNI if MRZ DNI is missing (unlikely given check above, but good for robustness)
-                if (!finalData.document_number) {
-                    finalData.document_number = frontResult.data.document_number;
-                }
-            }
 
             // Usar la validación interna del scanner
             const validationStatus = mrzResult.validation?.status || 'UNKNOWN';

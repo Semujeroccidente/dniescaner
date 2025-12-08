@@ -118,6 +118,7 @@
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
+
             <button id="btn-today"
                 style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 10px 20px; border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer;">
                 <i class="fa-solid fa-calendar-day"></i> Hoy
@@ -128,7 +129,7 @@
         <div class="agenda-grid">
 
             <!-- Calendar Section -->
-            <div class="calendar-section">
+            <div class="calendar-section glass-panel">
                 <h3 class="section-title">
                     <i class="fa-regular fa-calendar"></i>
                     Calendario
@@ -169,70 +170,78 @@
         </div>
 
         <!-- Form Section -->
-        <div id="form-section" class="form-section">
-            <h3 class="section-title" id="form-title">
-                <i class="fa-solid fa-calendar-plus"></i>
-                Nuevo Evento
-            </h3>
+        <div id="form-section" class="form-section glass-panel">
+            <div class="form-header">
+                <div class="icon-box">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                </div>
+                <h3 class="section-title" id="form-title">
+                    Nuevo Evento
+                </h3>
+            </div>
 
             <form id="appointment-form" class="appointment-form">
-                <div class="form-group">
-                    <label for="appointment-title">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        Nombre del Evento
-                    </label>
-                    <input type="text" id="appointment-title" placeholder="Ej: Reunión con Gobiernos Locales" required>
+                <div class="form-row">
+                    <div class="form-group flex-grow">
+                        <label for="appointment-title">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            Nombre del Evento
+                        </label>
+                        <input type="text" id="appointment-title" placeholder="Ej: Reunión con Gobiernos Locales"
+                            required class="modern-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appointment-date">
+                            <i class="fa-regular fa-calendar"></i>
+                            Fecha
+                        </label>
+                        <input type="date" id="appointment-date" required class="modern-input">
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="appointment-date">
-                        <i class="fa-regular fa-calendar"></i>
-                        Fecha
-                    </label>
-                    <input type="date" id="appointment-date" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="time-hour">
+                    <label>
                         <i class="fa-regular fa-clock"></i>
                         Hora del Evento
                     </label>
-                    <div class="time-selector-container">
-                        <select id="time-hour" class="time-select" required>
-                            <option value="01">01</option>
-                            <option value="02">02</option>
-                            <option value="03">03</option>
-                            <option value="04">04</option>
-                            <option value="05">05</option>
-                            <option value="06">06</option>
-                            <option value="07">07</option>
-                            <option value="08">08</option>
-                            <option value="09">09</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                        </select>
-                        <span class="time-separator">:</span>
-                        <select id="time-minute" class="time-select" required>
-                            <option value="00">00</option>
-                            <option value="05">05</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                            <option value="25">25</option>
-                            <option value="30">30</option>
-                            <option value="35">35</option>
-                            <option value="40">40</option>
-                            <option value="45">45</option>
-                            <option value="50">50</option>
-                            <option value="55">55</option>
-                        </select>
-                        <select id="time-period" class="time-select" required>
-                            <option value="AM">AM</option>
-                            <option value="PM">PM</option>
-                        </select>
+                    <div class="time-selector-wrapper">
+                        <div class="time-selector-container">
+                            <select id="time-hour" class="time-select" required>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08">08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                            </select>
+                            <span class="time-separator">:</span>
+                            <select id="time-minute" class="time-select" required>
+                                <option value="00">00</option>
+                                <option value="05">05</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <option value="55">55</option>
+                            </select>
+                            <select id="time-period" class="time-select period-select" required>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
                     </div>
-                    <!-- Hidden input to store 24h format for DB/Logic -->
                     <input type="hidden" id="appointment-time" required>
                 </div>
 
@@ -241,30 +250,42 @@
                         <i class="fa-solid fa-user-tie"></i>
                         Personal Asignado
                     </label>
-                    <div class="checkbox-group" id="appointment-staff">
-                        <label class="checkbox-label">
+                    <div class="chip-group" id="appointment-staff">
+                        <label class="chip-choice">
                             <input type="checkbox" name="staff" value="JEFE DE REGIONAL">
-                            <span>Jefe de Regional</span>
+                            <span class="chip-content">
+                                <i class="fa-solid fa-user-check"></i> Jefe Regional
+                            </span>
                         </label>
-                        <label class="checkbox-label">
+                        <label class="chip-choice">
                             <input type="checkbox" name="staff" value="OFICIAL JURIDICO">
-                            <span>Oficial Jurídico</span>
+                            <span class="chip-content">
+                                <i class="fa-solid fa-gavel"></i> Oficial Jurídico
+                            </span>
                         </label>
-                        <label class="checkbox-label">
+                        <label class="chip-choice">
                             <input type="checkbox" name="staff" value="ASISTENTE JURIDICO">
-                            <span>Asistente Jurídico</span>
+                            <span class="chip-content">
+                                <i class="fa-solid fa-scale-balanced"></i> Asistente Jur.
+                            </span>
                         </label>
-                        <label class="checkbox-label">
+                        <label class="chip-choice">
                             <input type="checkbox" name="staff" value="TECNICO">
-                            <span>Técnico</span>
+                            <span class="chip-content">
+                                <i class="fa-solid fa-laptop-code"></i> Técnico
+                            </span>
                         </label>
-                        <label class="checkbox-label">
+                        <label class="chip-choice">
                             <input type="checkbox" name="staff" value="CONDUCTOR">
-                            <span>Conductor</span>
+                            <span class="chip-content">
+                                <i class="fa-solid fa-car"></i> Conductor
+                            </span>
                         </label>
-                        <label class="checkbox-label checkbox-all">
+                        <label class="chip-choice chip-all">
                             <input type="checkbox" name="staff" value="TODO EL EQUIPO" id="select-all-staff">
-                            <span><strong>Todo el Equipo</strong></span>
+                            <span class="chip-content">
+                                <i class="fa-solid fa-users"></i> Todo el Equipo
+                            </span>
                         </label>
                     </div>
                 </div>
@@ -272,19 +293,18 @@
                 <div class="form-group">
                     <label for="appointment-description">
                         <i class="fa-solid fa-align-left"></i>
-                        Descripción (Opcional)
+                        Descripción
                     </label>
-                    <textarea id="appointment-description" placeholder="Detalles adicionales..."></textarea>
+                    <textarea id="appointment-description" class="modern-textarea"
+                        placeholder="Añadir notas o detalles adicionales..."></textarea>
                 </div>
 
                 <div class="form-actions">
                     <button type="button" id="btn-cancel-form" class="btn-cancel">
-                        <i class="fa-solid fa-xmark"></i>
                         Cancelar
                     </button>
                     <button type="submit" id="btn-submit-form" class="btn-submit">
-                        <i class="fa-solid fa-plus"></i>
-                        Crear Cita
+                        <i class="fa-solid fa-plus"></i> Crear Cita
                     </button>
                 </div>
             </form>
