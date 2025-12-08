@@ -130,7 +130,7 @@ const app = {
                 });
                 tbody._delegationAttached = true;
             }
-            await DashboardStats.init();
+
 
             // Detectar offline/online
             window.addEventListener('online', app.updateOnlineStatus);
@@ -621,7 +621,7 @@ const app = {
             app.renderTablePage(records, 1);
 
             // Update dashboard
-            await DashboardStats.init();
+
         } catch (err) {
             console.error('Error loading records:', err);
             alert(`Error al cargar registros: ${err.message || err}`);

@@ -23,7 +23,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -284,51 +284,7 @@
         </section>
 
         <!-- Dashboard Section (Ahora dentro del MAIN) -->
-        <section id="dashboard-section" class="card">
-            <div class="card-header">
-                <h2><i class="fa-solid fa-chart-pie"></i> Estadísticas</h2>
-            </div>
 
-            <div class="card-body">
-                <div class="stats-grid">
-                    <div class="stat-card stat-total">
-                        <h3>Total Registros</h3>
-                        <p id="total-registros" class="stat-value">0</p>
-                    </div>
-                    <div class="stat-card stat-avg">
-                        <h3>Edad Promedio</h3>
-                        <p id="edad-promedio" class="stat-value">0</p>
-                    </div>
-                    <div class="stat-card stat-min">
-                        <h3>Edad Mín</h3>
-                        <p id="edad-min" class="stat-value">0</p>
-                    </div>
-                    <div class="stat-card stat-max">
-                        <h3>Edad Máx</h3>
-                        <p id="edad-max" class="stat-value">0</p>
-                    </div>
-                </div>
-
-                <div class="charts-grid">
-                    <div class="chart-container">
-                        <h4>Distribución por Sexo</h4>
-                        <canvas id="chart-gender"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h4>Distribución por Edad</h4>
-                        <canvas id="chart-age"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h4>Top Departamentos</h4>
-                        <canvas id="chart-department"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h4>Top Municipios</h4>
-                        <canvas id="chart-municipality"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
 
     </main>
 
@@ -385,7 +341,7 @@
     <script src="../js/dni/ocr-front.js"></script>
     <script src="../js/dni/camera.js"></script>
     <script src="../js/dni/pagination.js"></script>
-    <script src="../js/dni/statistics.js"></script>
+
     <script src="../js/dni/qrcode-handler.js"></script>
     <script src="../js/dni/app.js"></script>
 
